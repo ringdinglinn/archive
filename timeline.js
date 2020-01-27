@@ -21,24 +21,31 @@ var initialState = true;
 function zoom(){
   console.log("ZOOM");
   console.log(m);
-  if(m >= 0 && yPos[1] > 0.5 && yPos[fields.length-2] < 799.5 || m < 0){
-    for (var i = 0; i < mousePos; i++){
-      var y = 0;
-      y = pow(gHeight/yPos[i],-m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
-      //else y = 1;
-      yPos[i] = y;
-    } 
-    for (var i = mousePos; i < fieldsLength+1; i++){
-      var y = 0;
-      y = pow(gHeight/yPos[i],m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
-      //else y = 1;
-      yPos[i] = y;
-    }
-    for (var i = 0; i < fieldsLength; i++){
-      fields[i].y1 = yPos[i];
-      fields[i].y2 = yPos[i+1];
-      fields[i].fieldHeight = yPos[i+1] - yPos[i];
-    }
+  console.log(yPos);
+
+
+  newYPos = [];
+  for (var i = 0; i < mousePos; i++){
+    var y = 0;
+    y = pow(gHeight/yPos[i],-m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
+    //else y = 1;
+    newYPos[i] = y;
+  } 
+  for (var i = mousePos; i < fieldsLength+1; i++){
+    var y = 0;
+    y = pow(gHeight/yPos[i],m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
+    //else y = 1;
+    newYPos[i] = y;
+  }
+
+  if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < 799.5 || m < 0){
+    yPos = newYPos;
+  }
+
+  for (var i = 0; i < fieldsLength; i++){
+    fields[i].y1 = yPos[i];
+    fields[i].y2 = yPos[i+1];
+    fields[i].fieldHeight = yPos[i+1] - yPos[i];
   }
 
   initialState = false;
@@ -142,6 +149,7 @@ function deepen(index){
 
 function flatten(){
   var index = fieldLog[fieldLog.length-1];
+  console.log(fieldLog);
   
   for (var i = n-1; i > 0; i--){
     fields.splice(i + index - 1,1);
@@ -163,12 +171,11 @@ function flatten(){
     y1 = fields[index-1].y2;
     y2 = gHeight;
   } else {
-    console.log("index= " + index);
     c = (fields[index-1].hue + fields[index].hue)/2;
     y1 = fields[index-1].y2;
     y2 = fields[index].y1;
   }
-
+  console.log("index= " + index);
   console.log("flatten");
   console.log(yPos);
 
@@ -178,7 +185,7 @@ function flatten(){
   fieldsLength = fields.length;
   yPos.splice(index, 0, newField.y1);
   originalYPos.splice(index, 0, newField.y1);
-  fieldLog.splice(fieldLog.length-1,0,1);
+  fieldLog.splice(fieldLog.length-1,1);
   currentMousePos();
   if (fieldsLength == n-1) initialNumber = true;
   yPos[yPos.length-1] = gHeight;
