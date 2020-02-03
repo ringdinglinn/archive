@@ -6,9 +6,11 @@ var a = 0;
 var e;
 var m;
 var mousePos;
+var mousePosDiv;
 var originalYPos = [];
 var yPos = [];
 var fields = [];
+var divTops = [];
 
 var fieldsLength;
 var fieldLog =[];
@@ -16,6 +18,7 @@ var fieldLog =[];
 var counter;
 var initialNumber = true;
 var initialState = true;
+var projects = document.getElementsByClassName("project");
 
 
 function zoom(){
@@ -23,29 +26,52 @@ function zoom(){
   console.log(m);
   console.log(yPos);
 
-
+  //colors
   newYPos = [];
+  newYTextPos = [];
   for (var i = 0; i < mousePos; i++){
     var y = 0;
     y = pow(gHeight/yPos[i],-m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
-    //else y = 1;
     newYPos[i] = y;
   } 
   for (var i = mousePos; i < fieldsLength+1; i++){
     var y = 0;
     y = pow(gHeight/yPos[i],m*(yPos[i]/gHeight)) * (yPos[i] + gHeight) - gHeight;
-    //else y = 1;
     newYPos[i] = y;
   }
+  //text
+  for (var i = 0; i < mousePosDiv; i++){
+    var yText = 0;
+    yText =  pow(gHeight/divTops[i],-m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
+    console.log("yText = " + yText);
+    newYTextPos[i] = yText;
+  }
+  for (var i = mousePosDiv; i < projects.length; i++){
+    var yText = 0;
+    yText = pow(gHeight/divTops[i],m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
+    console.log("yText = " + yText);
+    newYTextPos[i] = yText;
+  }
+  console.log("newYTextPos");
+  console.log(newYTextPos);
 
   if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < 799.5 || m < 0){
     yPos = newYPos;
+    divTops = newYTextPos;
   }
 
   for (var i = 0; i < fieldsLength; i++){
     fields[i].y1 = yPos[i];
     fields[i].y2 = yPos[i+1];
     fields[i].fieldHeight = yPos[i+1] - yPos[i];
+  }
+
+  console.log(projects);
+  console.log("-----");
+  console.log(divTops);
+  for (var i = 0; i < projects.length; ++i){
+    console.log(projects.item(i));
+    projects.item(i).style.margin = Math.round(divTops[i]).toString() + "px 0px 0px 0px";
   }
 
   initialState = false;
@@ -192,7 +218,6 @@ function flatten(){
   console.log("flatten2");
   console.log(yPos);
 }
-  
 
 function create(){
   for (var i = 0; i < n; i++){
@@ -206,12 +231,15 @@ function create(){
   fieldsLength = n-1;
 }
     
-function setup(){
+function setup() {
   p5Canvas = createCanvas(20,800);
   p5Canvas.parent(document.getElementById('sketch-holder'));
   background(255);
   create();
   display();
+  for (var i = 0; i < projects.length; ++i){
+    divTops[i] = projects.item(i).getBoundingClientRect().top;
+  }
 }
 
 function draw(){
@@ -233,6 +261,14 @@ function currentMousePos(){
       mousePos = i+1;
     }
   }
+  for (var i = 0; i < projects.length; i++){
+    console.log(divTops[i]);
+    console.log(divTops[i]);
+      if (mouseY >= divTops[i] && mouseY < divTops[i+1] || mouseY < divTops[i] && i === 0 || mouseY > divTops[i] && i === divTops.length-1){
+      mousePosDiv = i+1;
+    }
+  }
+  console.log("mosuePosDiv = " + mousePosDiv);
 }
 
 function display(){

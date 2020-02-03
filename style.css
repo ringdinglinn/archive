@@ -43,13 +43,13 @@
 
 .text {
 	display:block;
-	padding-left:100px;
+	padding-left:10px;
 	padding-right:300px;
 }
 
 .project {
 	padding-bottom: 50px;
-	display:inline-grid;
+	display:block;
 }
 
 .contact-button {
@@ -73,14 +73,20 @@
 .description {
 	display: block;
 	margin-bottom: 5px;	
+	padding-left: 10px;
 }
 
 .media-container{
 	width:100%;
 	display: grid; /* (1) */
     grid-template-columns: repeat(auto-fit,minmax(400px,1fr));
-   	max-height:500px;
-    grid-gap: -0px;
+   	height:auto;
+    grid-gap: 0px;
+    display:none;
+}
+
+h1 {
+	font-size: 14px;
 }
 
 h2 {
@@ -91,9 +97,14 @@ h2 {
 	font-size: 12px;
 }
 
+h3 {
+	font-size: 30px;
+	display: none;
+}
+
 .time-marker{
 	width:80px;
-	margin-left:-90px;
+	width: 90px;
 	float:left;
 	margin-top:5px;
 }
