@@ -27,7 +27,6 @@
 	margin: 0 0px;
 	color: #000000;
 	cursor: pointer;
-	
 }
 
 .active {
@@ -50,6 +49,7 @@
 .project {
 	padding-bottom: 50px;
 	display:block;
+	float:bottom;
 }
 
 .contact-button {

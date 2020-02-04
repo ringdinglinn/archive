@@ -22,9 +22,6 @@ var projects = document.getElementsByClassName("project");
 
 
 function zoom(){
-  console.log("ZOOM");
-  console.log(m);
-  console.log(yPos);
 
   //colors
   newYPos = [];
@@ -52,8 +49,6 @@ function zoom(){
     console.log("yText = " + yText);
     newYTextPos[i] = yText;
   }
-  console.log("newYTextPos");
-  console.log(newYTextPos);
 
   if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < 799.5 || m < 0){
     yPos = newYPos;
@@ -66,27 +61,21 @@ function zoom(){
     fields[i].fieldHeight = yPos[i+1] - yPos[i];
   }
 
-  console.log(projects);
-  console.log("-----");
-  console.log(divTops);
   for (var i = 0; i < projects.length; ++i){
     console.log(projects.item(i));
+    console.log(divTops);
     projects.item(i).style.margin = Math.round(divTops[i]).toString() + "px 0px 0px 0px";
   }
 
   initialState = false;
-  console.log(yPos);
   //Check for deepen
   if (mousePos === 0 && fields[0].fieldHeight/(n-1) > fields[1].fieldHeight){
-    console.log("deepen 1");
     deepen(0);
   } 
   for (var i = 1; i < fieldsLength - 1; i++){
     if(fields[i].fieldHeight/(n-1) > fields[i-1].fieldHeight && 
        fields[i].fieldHeight/(n-1) > fields[i+1].fieldHeight &&
        i === mousePos - 1){
-      console.log("deepen 2");
-      console.log(i);
        deepen(i);
     }
   }
@@ -109,13 +98,9 @@ function zoom(){
       }
     }
   }
-  console.log(yPos);
-  console.log(fields.length);
 }
 
 function snap(){
-  console.log("snap!");
-  console.log(yPos);
   for (var i = 0; i < n; i++){
     var y = i* (gHeight/(n-1));
     originalYPos[i] = y;
@@ -128,11 +113,9 @@ function snap(){
   }
   
   initialState = true;
-  console.log(yPos);
 }
 
 function deepen(index){
-  console.log("DEEPEN");
   fieldLog.push(index);
   var fieldHeight = fields[index].fieldHeight/(n-1);
   var startY = fields[index].y1;
@@ -164,7 +147,6 @@ function deepen(index){
   }
 
   fields.splice(index,1);
-  console.log(yPos);
   yPos.splice(index,1);
   originalYPos.splice(index,1);
   fieldsLength = fields.length;
@@ -175,7 +157,6 @@ function deepen(index){
 
 function flatten(){
   var index = fieldLog[fieldLog.length-1];
-  console.log(fieldLog);
   
   for (var i = n-1; i > 0; i--){
     fields.splice(i + index - 1,1);
@@ -201,9 +182,6 @@ function flatten(){
     y1 = fields[index-1].y2;
     y2 = fields[index].y1;
   }
-  console.log("index= " + index);
-  console.log("flatten");
-  console.log(yPos);
 
   yPos.splice(fields.length-1, yPos.length - fields.length - 1);
   
@@ -215,8 +193,6 @@ function flatten(){
   currentMousePos();
   if (fieldsLength == n-1) initialNumber = true;
   yPos[yPos.length-1] = gHeight;
-  console.log("flatten2");
-  console.log(yPos);
 }
 
 function create(){
@@ -240,6 +216,10 @@ function setup() {
   for (var i = 0; i < projects.length; ++i){
     divTops[i] = projects.item(i).getBoundingClientRect().top;
   }
+  for (var i = divTops.length-1; i >= 0 ; --i){
+    divTops[i] -= divTops[0];
+  }
+  console.log(divTops);
 }
 
 function draw(){
@@ -262,13 +242,10 @@ function currentMousePos(){
     }
   }
   for (var i = 0; i < projects.length; i++){
-    console.log(divTops[i]);
-    console.log(divTops[i]);
       if (mouseY >= divTops[i] && mouseY < divTops[i+1] || mouseY < divTops[i] && i === 0 || mouseY > divTops[i] && i === divTops.length-1){
       mousePosDiv = i+1;
     }
   }
-  console.log("mosuePosDiv = " + mousePosDiv);
 }
 
 function display(){
