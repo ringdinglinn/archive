@@ -38,18 +38,23 @@
 
 .content {
 	display:inline-flex;
+	height:800px	;
 }
 
 .text {
 	display:block;
 	padding-left:10px;
 	padding-right:300px;
+	height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
 }
 
 .project {
 	padding-bottom: 50px;
 	display:block;
-	float:bottom;
+	position: absolute;
 }
 
 .contact-button {
@@ -85,8 +90,28 @@
     display:none;
 }
 
+.h1-project1{
+	--h1-font-large:30px;
+	--h1-font-small:14px;
+	font-size: var(--h1-font-small);
+}
+
+.h1-project2{
+	--h1-font-large:30px;
+	--h1-font-small:14px;
+	font-size: var(--h1-font-small);
+}
+
+.h1-project2{
+	--h1-font-large:30px;
+	--h1-font-small:14px;
+	font-size: var(--h1-font-small);
+}
+
 h1 {
-	font-size: 14px;
+	--h1-font-large:30px;
+	--h1-font-small:14px;
+	font-size: var(--h1-font-small);
 }
 
 h2 {

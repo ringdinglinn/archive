@@ -19,6 +19,7 @@ var counter;
 var initialNumber = true;
 var initialState = true;
 var projects = document.getElementsByClassName("project");
+var canvasPos;
 
 
 function zoom(){
@@ -64,7 +65,10 @@ function zoom(){
   for (var i = 0; i < projects.length; ++i){
     console.log(projects.item(i));
     console.log(divTops);
-    projects.item(i).style.margin = Math.round(divTops[i]).toString() + "px 0px 0px 0px";
+    console.log(canvasPos);
+    let top = canvasPos + Math.round(divTops[i])
+    projects.item(i).style.top = top.toString();
+    console.log("top: " + top.toString()); 
   }
 
   initialState = false;
@@ -96,6 +100,17 @@ function zoom(){
          if (!initialNumber) flatten();
          else snap();
       }
+    }
+  }
+
+  for (let i = 0; i < divTops.length-1; ++i){
+    if (divTops[i+1] - divTops[i] > 400){
+      console.log("HELLLOOOOO");
+      let index = i+1;
+      console.log(document.getElementsByClassName("h1-project" + index));
+      console.log("h1-project" + index);
+      document.getElementsByClassName("h1-project" + index).item(0).style.fontSize = "30px";
+      
     }
   }
 }
@@ -208,18 +223,21 @@ function create(){
 }
     
 function setup() {
+  var sketchHolder = document.getElementById('sketch-holder');
   p5Canvas = createCanvas(20,800);
-  p5Canvas.parent(document.getElementById('sketch-holder'));
+  p5Canvas.parent(sketchHolder);
   background(255);
   create();
   display();
+  canvasPos = sketchHolder.getBoundingClientRect().top;
   for (var i = 0; i < projects.length; ++i){
     divTops[i] = projects.item(i).getBoundingClientRect().top;
   }
   for (var i = divTops.length-1; i >= 0 ; --i){
-    divTops[i] -= divTops[0];
+    divTops[i] -= canvasPos;
   }
   console.log(divTops);
+  
 }
 
 function draw(){
