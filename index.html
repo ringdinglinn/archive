@@ -4,8 +4,42 @@
 		<link rel="stylesheet" href="style.css">
 		<script src="p5.min.js" ></script>
 		<script src="timeline.js"></script>
+		<script> 
+			var currentSlide;
+
+			function openModal(){
+				console.log("openModal()");
+				var lightbox = document.getElementById("lightbox");
+				console.log(lightbox);
+				var imgContainer = document.getElementById("lightbox-img");
+				lightbox.style.display = "block";
+				imgContainer.style.display = "block";
+			}
+
+			function closeModal(){
+				var lightbox = document.getElementById("lightbox");
+				var imgContainer = document.getElementById("lightbox-img");
+				lightbox.style.display = "none";
+				imgContainer.stlye.display = "none";
+			}
+
+			function showSlide(m,n){
+				console.log("showSlide: " + m + ", " + n);
+				var lightbox = document.getElementById("lightbox");
+				var imgContainer = document.getElementById("lightbox-img");
+				var project = document.getElementById("project" + m);
+				var slides = project.getElementsByClassName("display-img");
+				currentSlide = slides[n];
+				var imgSource = currentSlide.src;
+				console.log(imgSource);
+				imgContainer.src = imgSource;
+			}
+		</script>
 	</head>
 	<body>
+		<div id="lightbox">
+			<img id="lightbox-img"></img>
+		</div>
 		<div class="container">
 			<div class="menu">
 				<ul>
@@ -17,33 +51,60 @@
 				<div id="sketch-holder" class="sketch-holder">
 				</div>
 				<div class="text">
-					<div class="project" style="top:220px;">
+					<div class="project" style="top:220px;" id="project1">
 						<hr class="time-marker">
 						<div class="description">
 							<h2>09/19 - 11/19</h2>
 							<h1 class="h1-project1">Feierlichkeiten</h1>
-							<h3>This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
-						</div>
-						<div class="media-container">
-							<img class="display-img" src="assets/projects/feierlichkeiten/23.png"></img>
-							<img class="display-img" src="assets/projects/feierlichkeiten/22.png"></img>
-							<img class="display-img" src="assets/projects/feierlichkeiten/21.png"></img>
-							<img class="display-img" src="assets/projects/feierlichkeiten/20.png"></img>
-							<img class="display-img" src="assets/projects/feierlichkeiten/19.png"></img>
+							<h3 class="h3-project1"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container">
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/23.png" onclick="openModal();showSlide(1,0)"></img>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/22.png" onclick="openModal();showSlide(1,1)"></img>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/21.png" onclick="openModal();showSlide(1,2)"></img>
+									<p> Img. 02 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/20.png" onclick="openModal();showSlide(1,3)"></img>
+									<p> Img. 03 </p>
+								</div>
+							</div>
 						</div>
 					</div>
-					<div class="project" style="top:360px;">
+					<div class="project" style="top:360px;" id="project2">
 						<hr class="time-marker">
 						<div class="description">
 							<h2>09/19 - 11/19</h2>
 							<h1 class="h1-project2">My latest project</h1>
+							<h3 class="h3-project2"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container">
+								<img class="display-img" src="assets/projects/feierlichkeiten/23.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/22.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/21.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/20.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/19.png"></img>
+							</div>
 						</div>
 					</div>
-					<div class="project" style="top:610px;">
+					<div class="project" style="top:610px;" id="project3">
 						<hr class="time-marker">
 						<div class="description">
 							<h2>09/19 - 11/19</h2>	
 							<h1 class="h1-project3">My latest project</h1>
+							<h3 class="h3-project3"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container">
+								<img class="display-img" src="assets/projects/feierlichkeiten/23.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/22.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/21.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/20.png"></img>
+								<img class="display-img" src="assets/projects/feierlichkeiten/19.png"></img>
+							</div>
 						</div>
 					</div>	
 				</div>

@@ -41,13 +41,13 @@ function zoom(){
   for (var i = 0; i < mousePosDiv; i++){
     var yText = 0;
     yText =  pow(gHeight/divTops[i],-m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
-    console.log("yText = " + yText);
+  
     newYTextPos[i] = yText;
   }
   for (var i = mousePosDiv; i < projects.length; i++){
     var yText = 0;
     yText = pow(gHeight/divTops[i],m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
-    console.log("yText = " + yText);
+  
     newYTextPos[i] = yText;
   }
 
@@ -63,12 +63,8 @@ function zoom(){
   }
 
   for (var i = 0; i < projects.length; ++i){
-    console.log(projects.item(i));
-    console.log(divTops);
-    console.log(canvasPos);
     let top = canvasPos + Math.round(divTops[i])
     projects.item(i).style.top = top.toString();
-    console.log("top: " + top.toString()); 
   }
 
   initialState = false;
@@ -103,14 +99,50 @@ function zoom(){
     }
   }
 
-  for (let i = 0; i < divTops.length-1; ++i){
-    if (divTops[i+1] - divTops[i] > 400){
-      console.log("HELLLOOOOO");
-      let index = i+1;
-      console.log(document.getElementsByClassName("h1-project" + index));
-      console.log("h1-project" + index);
-      document.getElementsByClassName("h1-project" + index).item(0).style.fontSize = "30px";
+  for (let i = 0; i < divTops.length; ++i){
+    let index = i+1;
+    let h1 = projects.item(i).getElementsByTagName("h1")[0];
+    let h2 = projects.item(i).getElementsByTagName("h2")[0];
+    let h3 = projects.item(i).getElementsByTagName("h3")[0];
+  
+    let mediaContainer = projects.item(i).getElementsByClassName("media-container")[0];
+
+  
+  
+    if (divTops[i+1] - divTops[i] > 300 || (i == divTops.length-1 && divTops[i] < gHeight - 300)){
+        h1.style.fontSize = getComputedStyle(h1).getPropertyValue("--h1-font-large");
+        h1.style.fontWeight = "bold";
+    } else {
+        h1.style.fontSize = getComputedStyle(h1).getPropertyValue("--h1-font-small");
+        h1.style.fontWeight = "lighter";
+    }
+
+    if (divTops[i+1] - divTops[i] > 350 || (i == divTops.length-1 && divTops[i] < gHeight - 350)){
+        h3.style.display = "block";
+    } else {
+        h3.style.display = "none";
+    }
+
+    if (divTops[i+1] - divTops[i] > 400 || (i == divTops.length-1 && divTops[i] < gHeight - 400)){
+        let height = divTops[i+1] - divTops[i];
       
+        mediaContainer.style.visibility = "visible";
+        mediaContainer.style.height = height.toString + "px";
+        console.log(height);
+        
+    } else {
+        mediaContainer.style.visibility = "hidden";    }
+
+    if (divTops[i+1] - divTops[i] > 50 || (i == divTops.length-1 && divTops[i] < gHeight - 50)){
+        h1.style.display = "block";
+    } else {
+        h1.style.display = "none";
+    }
+
+    if (divTops[i+1] - divTops[i] > 20 || (i == divTops.length-1 && divTops[i] < gHeight - 20)){
+        h2.style.display = "block";
+    } else {
+        h2.style.display = "none";
     }
   }
 }
@@ -236,7 +268,7 @@ function setup() {
   for (var i = divTops.length-1; i >= 0 ; --i){
     divTops[i] -= canvasPos;
   }
-  console.log(divTops);
+
   
 }
 
