@@ -1,5 +1,6 @@
 var gWidth = 20;
 var gHeight = 800;
+var defaultHeight = 1162;
 
 var n = 7;
 var a = 0;
@@ -11,6 +12,7 @@ var originalYPos = [];
 var yPos = [];
 var fields = [];
 var divTops = [];
+var origDivTops = [];
 
 var fieldsLength;
 var fieldLog =[];
@@ -23,7 +25,6 @@ var canvasPos;
 
 
 function zoom(){
-
   //colors
   newYPos = [];
   newYTextPos = [];
@@ -41,17 +42,15 @@ function zoom(){
   for (var i = 0; i < mousePosDiv; i++){
     var yText = 0;
     yText =  pow(gHeight/divTops[i],-m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
-  
     newYTextPos[i] = yText;
   }
   for (var i = mousePosDiv; i < projects.length; i++){
     var yText = 0;
     yText = pow(gHeight/divTops[i],m*(divTops[i]/gHeight)) * (divTops[i] + gHeight) - gHeight;
-  
     newYTextPos[i] = yText;
   }
 
-  if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < 799.5 || m < 0){
+  if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < gHeight - 0.5 || m < 0){
     yPos = newYPos;
     divTops = newYTextPos;
   }
@@ -60,11 +59,6 @@ function zoom(){
     fields[i].y1 = yPos[i];
     fields[i].y2 = yPos[i+1];
     fields[i].fieldHeight = yPos[i+1] - yPos[i];
-  }
-
-  for (var i = 0; i < projects.length; ++i){
-    let top = canvasPos + Math.round(divTops[i])
-    projects.item(i).style.top = top.toString();
   }
 
   initialState = false;
@@ -99,17 +93,28 @@ function zoom(){
     }
   }
 
-  for (let i = 0; i < divTops.length; ++i){
-    let index = i+1;
-    let h1 = projects.item(i).getElementsByTagName("h1")[0];
-    let h2 = projects.item(i).getElementsByTagName("h2")[0];
-    let h3 = projects.item(i).getElementsByTagName("h3")[0];
-  
-    let mediaContainer = projects.item(i).getElementsByClassName("media-container")[0];
+  for (var i = 0; i < projects.length; ++i){
+    let top = canvasPos + Math.round(divTops[i])
+    projects.item(i).style.top = top.toString();
+  }
 
+
+  let h1 = projects.item(mousePosDiv - 1).getElementsByTagName("h1")[0];
+  let h2 = projects.item(mousePosDiv - 1).getElementsByTagName("h2")[0];
+  let h3 = projects.item(mousePosDiv - 1).getElementsByTagName("h3")[0];
   
-  
-    if (divTops[i+1] - divTops[i] > 300 || (i == divTops.length-1 && divTops[i] < gHeight - 300)){
+  let mediaContainer = projects.item(mousePosDiv - 1).getElementsByClassName("media-container")[0];
+
+
+  var dist;
+  if (mousePosDiv == divTops.length){
+    dist = gHeight - divTops[mousePosDiv - 1];
+  } else {
+    dist = divTops[mousePosDiv] - divTops[mousePosDiv - 1];
+  }
+
+  //title size increase/decrease
+    if (dist > (300/defaultHeight)*gHeight){
         h1.style.fontSize = getComputedStyle(h1).getPropertyValue("--h1-font-large");
         h1.style.fontWeight = "bold";
     } else {
@@ -117,33 +122,47 @@ function zoom(){
         h1.style.fontWeight = "lighter";
     }
 
-    if (divTops[i+1] - divTops[i] > 350 || (i == divTops.length-1 && divTops[i] < gHeight - 350)){
-        h3.style.display = "block";
-    } else {
-        h3.style.display = "none";
-    }
 
-    if (divTops[i+1] - divTops[i] > 400 || (i == divTops.length-1 && divTops[i] < gHeight - 400)){
-        let height = divTops[i+1] - divTops[i];
-      
-        mediaContainer.style.visibility = "visible";
-        mediaContainer.style.height = height.toString + "px";
-        console.log(height);
-        
-    } else {
-        mediaContainer.style.visibility = "hidden";    }
+  //description text on/off
+  if (dist > (350/defaultHeight)*gHeight){
+      h3.style.display = "block";
+  } else {
+      h3.style.display = "none";
+  }
 
-    if (divTops[i+1] - divTops[i] > 50 || (i == divTops.length-1 && divTops[i] < gHeight - 50)){
-        h1.style.display = "block";
-    } else {
-        h1.style.display = "none";
-    }
 
-    if (divTops[i+1] - divTops[i] > 20 || (i == divTops.length-1 && divTops[i] < gHeight - 20)){
-        h2.style.display = "block";
-    } else {
-        h2.style.display = "none";
-    }
+  //images on/off
+  if (dist > (400/defaultHeight)*gHeight){
+      let height = divTops[mousePosDiv] - divTops[mousePosDiv - 1];
+      setActiveMediaContainer(mousePosDiv);
+      mediaContainer.style.opacity = "1.0";
+      mediaContainer.style.height = height.toString + "px";
+      imgs = mediaContainer.getElementsByClassName("display-img");
+      for (var i = 0; i < imgs.length; ++i){
+        imgs[i].style.cursor = "pointer";
+      }
+  } else {
+      setActiveMediaContainer(0);
+      mediaContainer.style.opacity = "0.0";
+      imgs = mediaContainer.getElementsByClassName("display-img");
+      for (var i = 0; i < imgs.length; ++i){
+        imgs[i].style.cursor = "default";
+      }
+  }
+
+  //title display on/off when smoll
+  if (dist > (50/defaultHeight)*gHeight){
+      h1.style.display = "block";
+  } else {
+      h1.style.display = "none";
+  }
+
+
+  //date display on/off wgeb smoll
+  if (dist > (20/defaultHeight)*gHeight){
+      h2.style.display = "block";
+  } else {
+      h2.style.display = "none";
   }
 }
 
@@ -158,7 +177,9 @@ function snap(){
     fields[i].y1 = yPos[i];
     fields[i].y2 = yPos[i+1];
   }
-  
+
+  divTops = origDivTops;
+
   initialState = true;
 }
 
@@ -256,20 +277,19 @@ function create(){
     
 function setup() {
   var sketchHolder = document.getElementById('sketch-holder');
-  p5Canvas = createCanvas(20,800);
+  p5Canvas = createCanvas(20,windowHeight);
+  gHeight = defaultHeight;
   p5Canvas.parent(sketchHolder);
+  document.getElementById("pre-sketch").style.display = "none";
   background(255);
   create();
   display();
-  canvasPos = sketchHolder.getBoundingClientRect().top;
   for (var i = 0; i < projects.length; ++i){
-    divTops[i] = projects.item(i).getBoundingClientRect().top;
+    origDivTops[i] = projects.item(i).getBoundingClientRect().top;
   }
-  for (var i = divTops.length-1; i >= 0 ; --i){
-    divTops[i] -= canvasPos;
-  }
-
-  
+  canvasPosCalibrate();
+  divTopsCalibrate();
+  resizeTimeline(window.innerHeight);
 }
 
 function draw(){
@@ -306,6 +326,44 @@ function display(){
     noStroke();
     rect(0, fields[i].y1, gWidth, fields[i].y2 - fields[i].y1);
   }
+}
+
+function divTopsCalibrate(){
+  for (var i = 0; i < projects.length; ++i){
+    divTops[i] = projects.item(i).getBoundingClientRect().top;
+  }
+  for (var i = divTops.length-1; i >= 0 ; --i){
+    divTops[i] -= canvasPos;
+  }
+} 
+
+function canvasPosCalibrate(){
+  canvasPos = document.getElementById('sketch-holder').getBoundingClientRect().top;
+}
+
+function resizeTimeline(nHeight){
+  resizeCanvas(gWidth, window.innerHeight);
+
+  for (let i = 0; i < divTops.length; ++i){
+    divTops[i] = (divTops[i]/gHeight) * nHeight;
+    origDivTops[i] = (origDivTops[i]/gHeight) * nHeight;
+    let top = canvasPos + Math.round(divTops[i])
+    projects.item(i).style.top = top.toString();
+  }
+
+  for (let i = 0; i < yPos.length; ++i){
+    yPos[i] = Math.round((yPos[i]/gHeight) * nHeight);
+    originalYPos[i] = Math.round((originalYPos[i]/gHeight) * nHeight);
+  }
+
+  for (var i = 0; i < fieldsLength; i++){
+    fields[i].y1 = yPos[i];
+    fields[i].y2 = yPos[i+1];
+    fields[i].fieldHeight = yPos[i+1] - yPos[i];
+  }
+
+  gHeight = nHeight;
+  display();
 }
 
 class Field{
