@@ -220,7 +220,6 @@ function deepen(index){
   fieldsLength = fields.length;
   currentMousePos();
   initialNumber = false;
-
 }
 
 function flatten(){
@@ -339,6 +338,7 @@ function divTopsCalibrate(){
 
 function canvasPosCalibrate(){
   canvasPos = document.getElementById('sketch-holder').getBoundingClientRect().top;
+  console.log(canvasPos);
 }
 
 function resizeTimeline(nHeight){
@@ -363,6 +363,7 @@ function resizeTimeline(nHeight){
   }
 
   gHeight = nHeight;
+  console.log(canvasPos);
   display();
 }
 
