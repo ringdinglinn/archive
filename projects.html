@@ -1,0 +1,618 @@
+	<html>
+	<head>
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title> display </title>
+		<link rel="stylesheet" href="style2.css">
+		<script src="https://code.createjs.com/1.0.0/preloadjs.min.js"></script>
+		<script src="p5.min.js" ></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script>
+			var divTops = [];
+			var origDivTops = [];
+			var yPos = [];
+			var originalYPos = [];
+			var projects = [];
+			var canvasPos;
+			var gHeight = 1162.0;
+			var defaultHeight = 1162.0;
+			var gWidth = 20.0;
+		</script>
+		<script> 
+			var currentSlide;
+			var currentProjectNr;
+			var currentSlideNr;
+			var totalSlideNr;
+			var informationDisplay = false;
+			var activeMediaContainer = 0;
+			var first = true;
+
+			var imgContainer;
+			var lightbox;
+			var paused = true;
+
+			var visible = false;
+
+			function checkVisible(img){
+				if (img.style.cursor === "pointer"){
+					visible = true;
+				} else {
+					visible = false;
+				}
+			}
+
+			function enlarge(img,m,n){
+				openModal(m);
+				showSlide(n);	
+			}
+
+			function openModal(m){
+				currentProjectNr = m;
+				var lightbox = document.getElementById("lightbox");
+				lightbox.style.display = "block";
+			}
+
+
+			function showSlide(n){	
+				if (!first){
+					pauseVideo();
+				}
+				first = false;
+
+				currentSlideNr = n;
+				lightbox = document.getElementById("lightbox");
+				imgContainer = document.getElementById("lightbox-img");
+
+				var project = document.getElementById("project" + currentProjectNr);
+				var slides = project.getElementsByClassName("display-img");
+				totalSlideNr = slides.length;
+				currentSlide = slides[n];
+
+				if (currentSlide.tagName == "VIDEO"){
+					imgContainer.style.display = "none";
+					document.getElementById("video-controls").style.display = "flex";
+					imgContainer = document.getElementById("lightbox-video");
+					imgContainer.style.display = "block";
+				} else {
+					document.getElementById("lightbox-video").style.display = "none";
+					document.getElementById("video-controls").style.display = "none";
+					imgContainer = document.getElementById("lightbox-img");
+					imgContainer.style.display = "block";
+				}
+
+				var origSource = currentSlide.src;
+				origSource = origSource.split("/");
+				var source = "";
+				for (i = 0; i < origSource.length-1; i++){
+					source += origSource[i] + "/";
+				}
+				source += "fullsize" + "/" + origSource[origSource.length-1];
+				imgContainer.src = source;
+
+				playVideo();
+
+				var descriptions = project.getElementsByClassName("image-description");
+				
+				var descriptionText = descriptions[n].innerHTML;
+				document.getElementById("lightbox-description").innerHTML = descriptionText;
+
+				document.getElementById("lightbox-title").innerHTML = "img. " + addzeros(n,2);
+				
+				hideArrows();
+			}
+
+			function nextSlide(dir){
+				showSlide(currentSlideNr + dir);
+			}
+
+			function hideArrows(){
+				if (currentSlideNr == 0){
+					document.getElementById("arrow-left").style.display = "none";
+				} else {
+					document.getElementById("arrow-left").style.display = "block";
+				}
+
+				if (currentSlideNr == totalSlideNr - 1){
+					document.getElementById("arrow-right").style.display = "none";
+				} else {
+					document.getElementById("arrow-right").style.display = "block";
+				}
+			}
+
+			function addzeros(number, length) {
+			    var num = '' + number;
+			    while (num.length < length) {
+			        num = '0' + num;
+			    }
+			    return num;
+			}
+
+			function toggleInformation(){
+				informationDisplay = !informationDisplay;
+				if (informationDisplay){
+					openInformation();
+				} else {
+					closeInformation();
+				}
+			}
+
+			function openInformation(){
+				var information = document.getElementById("information");
+				var projects = document.getElementsByClassName("project");
+				console.log("hello");
+				information.style.display = "flex";
+				document.getElementsByClassName("contact-button")[0].innerHTML = "x";
+				for (let i = 0; i < projects.length; ++i){
+					var pos = projects[i].style.top.slice(0,-2);
+					var move = parseInt(pos) + information.clientHeight;
+					move = move.toString;
+					projects[i].style.top = move + "px";
+				}
+				setUrlVars('informationDisplay',true);
+			}
+
+			function closeInformation(){
+				var information = document.getElementById("information");
+				var projects = document.getElementsByClassName("project");
+				for (let i = 0; i < projects.length; ++i){
+					var pos = projects[i].style.top.slice(0,-2);
+					var move = parseInt(pos) - information.clientHeight;
+					move = move.toString();
+					projects[i].style.top = move;
+				}
+				information.style.display = "none";
+				document.getElementsByClassName("contact-button")[0].innerHTML = "?";
+				setUrlVars('informationDisplay',false);
+			}
+
+
+			function setActiveMediaContainer(i){
+				activeMediaContainer = i;
+			}
+
+			function videoButtonClick(){
+
+			}
+
+			function playVideo(){
+				if (currentSlide.tagName == "VIDEO" && paused){
+					let time = currentSlide.currentTime;
+					imgContainer.currentTime = time;
+					imgContainer.play(time);
+					paused = false;
+				}
+			}
+
+			function pauseVideo(){
+				if (currentSlide.tagName == "VIDEO" && !paused){
+					imgContainer.pause();
+					currentSlide.currentTime = imgContainer.currentTime;
+					paused = true;
+				}
+			}
+
+			function restartVideo(){
+				if (currentSlide.tagName == "VIDEO"){
+					imgContainer.currentTime = 0; 
+					currentSlide.currentTime = imgContainer.currentTime;
+				}
+			}
+
+			function jumpInVideo(dir){
+				if (currentSlide.tagName == "VIDEO"){
+					currentSlide.currentTime += dir * 10;
+					imgContainer.currentTime += dir * 10; 
+				}
+			}
+
+			function closeModal(){
+				lightbox.style.display = "none";
+				pauseVideo();
+			}
+
+			function preventPlay(vid){
+				vid.pause();
+				vid.currentTime = 10;
+			}
+
+			function toTimelineView(){
+				window.location.href = "timeline.html?informationDisplay=" + informationDisplay;
+			}
+
+			function getUrlVars() {
+			  var vars = {};
+			  var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+			      vars[key] = value;
+			  });
+			  return vars;
+			}
+
+			function setUrlVars(parameter, value) {
+				let url = document.URL;
+				url = url.replace(/=([a-z]+)/g, "=" + informationDisplay);
+				document.URL = url;
+				history.replaceState(history.state, "display", url);
+			}
+		</script>
+	</head>
+	<body>
+		<div id="lightbox">
+			<div class="arrows" id="arrow-left" onclick="nextSlide(-1)">
+				<img src="assets/icons/arrow-left.svg"></img>
+			</div>
+			<div id="lightbox-content">
+				<img id="lightbox-img"></img>
+				<video id="lightbox-video"></video>
+				<div id="lightbox-header">
+					<p id="lightbox-title">image title</p>
+					<p id="lightbox-close" onclick="closeModal()">close</p>
+				</div>
+				<p id="lightbox-description">Hello this is the description</p>
+				<div id="video-controls">
+					<img src="assets/icons/restart.svg" class="video-button" onclick="restartVideo()">
+					</img>
+					<img src="assets/icons/jump-back.svg" class="video-button" onclick="jumpInVideo(-1)">
+					</img>
+					<img src="assets/icons/pause.svg" class="video-button" onclick="pauseVideo()">
+					</img>
+					<img src="assets/icons/play.svg" class="video-button" onclick="playVideo()">
+					</img>
+					<img src="assets/icons/jump-forward.svg" class="video-button" onclick="jumpInVideo(1)">
+					</img>
+				</div>
+			</div>
+			<div class="arrows" id="arrow-right" onclick="nextSlide(1)">
+				<img src="assets/icons/arrow-right.svg"></img>
+			</div>
+		</div>
+		<div class="container">
+			<div id="information" style="display:none">
+				<div class="information-column"> Hello, I'm Linn and this is my archive. I decided to collect my projects in a place where people can see them and after a lot of fun and frustration, this website created. Please look around and feel free to contact me anytime.
+				</div>
+				<div class="information-column"> I am currently a student at the Zurich University of Arts in Game Design. I am a designer and coder with a special interest in computer graphics, interaction and language. I hope on this page you'll find something that interests you.
+				</div>
+				<div class="information-column"> 
+					<ul>
+					  <li><a href="https://twitter.com/ringdinglinn">@ringdinglinn</a></li>
+					  <li><a href="https://github.com/ringdinglinn"> https://github.com/ringdinglinn</a></li>
+					  <li>linn.spitz@outlook.com</li>
+					</ul>
+				</div>
+			</div>
+			<div id="switch-page-buttons">
+				<img src="assets/icons/project-view.svg">
+				<img onclick="toTimelineView()" src="assets/icons/time-view.svg" style="cursor:pointer">
+			</div>
+			<div id="page">
+			<div class="content">
+				<div class="text">
+					<div class="project" style="top:100px;" id="project1" onclick="displayDetails(this)">
+						<div class="description">
+							<h2>09/19 - 11/19</h2>
+							<h1 class="h1-project1">怪獣</h1>
+							<img class="symbol" src="assets/symbols/1.svg">
+							<img class="hover-arrow" src="assets/icons/arrow-up.svg">
+							<img class="clicked-arrow" src="assets/icons/arrow-up.svg">
+							<h3 class="h3-project1"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container">
+								<div>
+									<video class="display-img" src="assets/projects/kaiju/k2.mp4" onclick="enlarge(this,1,0);">
+										<p class="image-description"> The church from the outside </p>
+									</video>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<video class="display-img" src="assets/projects/kaiju/k3.mp4" onclick="enlarge(this,1,1);">
+										<p class="image-description"> Peeking in. Note the shitty lighting on the windowframe on the outside. The origin of this glitch is unknown even to the wisest at UNITY INC</p>
+									</video>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<video class="display-img" src="assets/projects/kaiju/k4.mp4" onclick="enlarge(this,1,2);">
+										<p class="image-description"> The entrance is not where the player will find the exit from this place </p>
+									</video>
+									<p> Img. 02 </p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="project" style="top:220px;" id="project2" onclick="displayDetails(this)">
+						<div class="description">
+							<h2>09/19 - 11/19</h2>
+							<h1 class="h1-project2">Feierlichkeiten</h1>
+							<img class="symbol" src="assets/symbols/2.svg">
+							<img class="hover-arrow" src="assets/icons/arrow-up.svg">
+							<img class="clicked-arrow" src="assets/icons/arrow-up.svg">
+							<h3 class="h3-project2"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container" onclick="preventPlay(this);">
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/23.png" onclick="enlarge(this,2,0);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/22.png" onclick="enlarge(this,2,1);">
+										<p class="image-description"> Peeking in. Note the shitty lighting on the windowframe on the outside. The origin of this glitch is unknown even to the wisest at UNITY INC</p>
+									</img>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/21.png" onclick="enlarge(this,2,2);">
+										<p class="image-description"> The entrance is not where the player will find the exit from this place </p>
+									</img>
+									<p> Img. 02 </p>
+								</div> 
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/20.png" onclick="enlarge(this,2,3);">
+										<p class="image-description"> Rather, they will have to look in around closely to find the hidden secrets of the church</p>
+									</img>
+									<p> Img. 03 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/feierlichkeiten/24.png" onclick="enlarge(this,2,4);">
+										<p class="image-description"> I had great fun with textures and Substance Painter</p>
+									</img>
+									<p> Img. 03 </p>
+								</div>
+								<div>
+									<video class="display-img" src="assets/projects/feierlichkeiten/feierlichkeiten-sound.mp4" onclick="enlarge(this,2,5);">
+										<p class="image-description"> The journey </p>
+									</video>
+									<p> Img. 04 </p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="project" style="top:360px;" id="project3" onclick="displayDetails(this)">
+						<div class="description">
+							<h2>09/19 - 11/19</h2>
+							<h1 class="h1-project3">Sunset Song</h1>
+							<img class="symbol" src="assets/symbols/3.svg">
+							<img class="hover-arrow" src="assets/icons/arrow-up.svg">
+							<img class="clicked-arrow" src="assets/icons/arrow-up.svg">
+							<h3 class="h3-project3"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container">
+								<div>
+									<video class="display-img" src="assets/projects/sunset-song/sunset-song.mp4" onclick="enlarge(this,3,0);">
+										<p class="image-description"> The church from the outside </p>
+									</video>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/sunset-song/process.gif" onclick="enlarge(this,3,1);">
+										<p class="image-description"> I had great fun with textures and Substance Painter</p>
+									</img>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/sunset-song/object-photo.jpg" onclick="enlarge(this,3,2);">
+										<p class="image-description"> I had great fun with textures and Substance Painter</p>
+									</img>
+									<p> Img. 03 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/sunset-song/model.png" onclick="enlarge(this,3,3);">
+										<p class="image-description"> I had great fun with textures and Substance Painter</p>
+									</img>
+									<p> Img. 04 </p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="project" style="top:610px;" id="project4" onclick="displayDetails(this)">
+						<div class="description">
+							<h2>09/19 - 11/19</h2>	
+							<h1 class="h1-project4">The Fabric</h1>
+							<img class="symbol" src="assets/symbols/4.svg">
+							<img class="hover-arrow" src="assets/icons/arrow-up.svg">
+							<img class="clicked-arrow" src="assets/icons/arrow-up.svg">
+							<h3 class="h3-project4"> This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked on. This is my latest project that I worked 	on. 	This is my latest project that I worked on. This is my latest project that I worked on.</h3>
+							<div class="media-container" style="grid-template-columns: repeat(auto-fit,100px);">
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-1.png" onclick="enlarge(this,4,0);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-2.png" onclick="enlarge(this,4,1);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-3.png" onclick="enlarge(this,4,2);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 02 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-4.png" onclick="enlarge(this,4,3);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 03 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-5.png" onclick="enlarge(this,4,4);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 04 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-6.png" onclick="enlarge(this,4,5);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 05 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-7.png" onclick="enlarge(this,4,6);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 06 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-8.png" onclick="enlarge(this,4,7);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 07 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-9.png" onclick="enlarge(this,4,8);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 08 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-10.png" onclick="enlarge(this,4,9);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 09 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/fabric-comic/png/Scan-7.2.png" onclick="enlarge(this,4,10);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 10 </p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="project" style="top:900px;" id="project5" onclick="displayDetails(this)">
+						<div class="description">
+							<h2>09/19 - 11/19</h2>	
+							<h1 class="h1-project5">peripheri.net</h1>
+							<img class="symbol" src="assets/symbols/5.svg">
+							<img class="hover-arrow" src="assets/icons/arrow-up.svg">
+							<img class="clicked-arrow" src="assets/icons/arrow-up.svg">
+							<h3 class="h3-project5"> This is my latest project that I worked on. https://peripheri.net</h3>
+							<div class="media-container">
+								<div>
+									<img class="display-img" src="assets/projects/peripheri/1.png" onclick="enlarge(this,5,0);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 00 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/peripheri/2.png" onclick="enlarge(this,5,1);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 01 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/peripheri/3.png" onclick="enlarge(this,5,2);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 02 </p>
+								</div>
+								<div>
+									<img class="display-img" src="assets/projects/peripheri/4.gif" onclick="enlarge(this,5,3);">
+										<p class="image-description"> The church from the outside </p>
+									</img>
+									<p> Img. 03 </p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="details">
+					<div id="detail-description">
+					</div>
+					<div id="media-container">
+					</div>
+				</div>
+			</div>
+			<div class="menu">
+				<a onclick="toggleInformation()" class="contact-button">?</a>
+			</div>
+		</div>
+		</div>
+	</body>
+	<script>
+		var selectedProject = 0;
+		var prevSelectedProject = 0;
+		function displayDetails(elem){
+			selectedProject = elem.id.match(/[0-9]+/g)[0];
+			if (elem.id.match(/[0-9]+/g)[0] != prevSelectedProject){
+				$('#media-container').empty();
+				if (prevSelectedProject != 0) document.getElementById("project" + prevSelectedProject).getElementsByClassName("clicked-arrow")[0].style.display = "none";
+				let arrow = elem.getElementsByClassName("clicked-arrow")[0];
+
+				arrow.style.display = "block";
+				let media = elem.getElementsByClassName("media-container")[0].cloneNode(true);
+				document.getElementById("media-container").append(media);
+				let description = elem.getElementsByClassName("h3-project" + selectedProject)[0].innerHTML;
+				document.getElementById("detail-description").innerHTML = description;
+
+				prevSelectedProject = elem.id.match(/[0-9]+/g)[0];
+			} else {
+				document.getElementById("detail-description").innerHTML = "";
+				$('#media-container').empty();
+				document.getElementById("project" + selectedProject).getElementsByClassName("clicked-arrow")[0].style.display = "none";
+				prevSelectedProject = 0;
+			}
+		}
+	</script>
+	<script>
+		projects = document.getElementsByClassName("project");
+
+		for (var i = 0; i < projects.length; ++i){
+  		origDivTops[i] = projects.item(i).getBoundingClientRect().top;
+  	}
+
+		function divTopsCalibrate(){
+		  for (var i = 0; i < projects.length; ++i){
+		    divTops[i] = projects.item(i).getBoundingClientRect().top;
+		  }
+		  for (var i = divTops.length-1; i >= 0 ; --i){
+		    divTops[i] -= canvasPos;
+		  }
+		} 
+		
+		function canvasPosCalibrate(){
+		  canvasPos = document.getElementById('sketch-holder').getBoundingClientRect().top;
+		}
+
+		function resizeDivs(nHeight){
+		  for (let i = 0; i < divTops.length; ++i){
+		    divTops[i] = Math.round((divTops[i]/gHeight) * nHeight);
+		    origDivTops[i] = Math.round((origDivTops[i]/gHeight) * nHeight);
+		    let top = canvasPos + divTops[i];
+		    projects.item(i).style.top = top.toString();
+		  }
+		
+		  gHeight = nHeight;
+		}
+
+		resizeDivs(window.innerHeight);
+
+		if (getUrlVars()["informationDisplay"] == 'true'){
+			informationDisplay = true;
+			openInformation();
+		} else {
+			console.log("false");
+			informationDisplay = false;
+			closeInformation();
+		}
+	</script>
+	<script>
+		var imgs = document.getElementsByClassName("media-container");
+
+		function loadImage(path) {
+		  var preload = new createjs.LoadQueue();
+		  preload.addEventListener("fileload", handleFileComplete);
+		  preload.loadFile(path);
+		}
+
+		function handleFileComplete(event) {
+		  document.body.appendChild(event.result);
+		}
+
+		for (let i = 0; i < imgs.length; i++){
+			for (let j = 0; j < imgs[i].length; j++){
+				loadImage(imgs[i].childNodes[j].src);
+			}
+		}
+
+	</script>
+	</html>

@@ -1,6 +1,3 @@
-var gWidth = 20;
-var gHeight = 800;
-var defaultHeight = 1162;
 
 var n = 7;
 var a = 0;
@@ -22,6 +19,8 @@ var initialNumber = true;
 var initialState = true;
 var projects = document.getElementsByClassName("project");
 var canvasPos;
+var descriptions;
+var first = true;
 
 
 function zoom(){
@@ -50,7 +49,9 @@ function zoom(){
     newYTextPos[i] = yText;
   }
 
-  if(m >= 0 && newYPos[1] > 0.5 && newYPos[fields.length-2] < gHeight - 0.5 || m < 0){
+  console.log("m = " + m);
+  if(m >= 0 && newYTextPos[0] > 0.5 && newYTextPos[fields.length-2] < gHeight - 0.5 || m < 0){
+  	console.log("BLOCKED");
     yPos = newYPos;
     divTops = newYTextPos;
   }
@@ -107,10 +108,13 @@ function zoom(){
 
 
   var dist;
-  if (mousePosDiv == divTops.length){
+  if (mousePosDiv === divTops.length){
     dist = gHeight - divTops[mousePosDiv - 1];
   } else {
     dist = divTops[mousePosDiv] - divTops[mousePosDiv - 1];
+    console.log("mousePosDiv = " + mousePosDiv);
+    console.log("divTops = " + divTops[mousePosDiv - 1]);
+    console.log("dist  =" + dist);
   }
 
   //title size increase/decrease
@@ -123,6 +127,7 @@ function zoom(){
     }
 
 
+   
   //description text on/off
   if (dist > (350/defaultHeight)*gHeight){
       h3.style.display = "block";
@@ -132,16 +137,16 @@ function zoom(){
 
 
   //images on/off
-  if (dist > (400/defaultHeight)*gHeight){
+  if (dist > (600/defaultHeight)*gHeight){
       let height = divTops[mousePosDiv] - divTops[mousePosDiv - 1];
       setActiveMediaContainer(mousePosDiv);
       mediaContainer.style.opacity = "1.0";
-      mediaContainer.style.height = height.toString + "px";
       imgs = mediaContainer.getElementsByClassName("display-img");
       for (var i = 0; i < imgs.length; ++i){
         imgs[i].style.cursor = "pointer";
       }
   } else {
+      console.log("hello");
       setActiveMediaContainer(0);
       mediaContainer.style.opacity = "0.0";
       imgs = mediaContainer.getElementsByClassName("display-img");
@@ -162,6 +167,7 @@ function zoom(){
   if (dist > (20/defaultHeight)*gHeight){
       h2.style.display = "block";
   } else {
+  		console.log("disappear");
       h2.style.display = "none";
   }
 }
@@ -276,23 +282,20 @@ function create(){
     
 function setup() {
   var sketchHolder = document.getElementById('sketch-holder');
-  p5Canvas = createCanvas(20,windowHeight);
-  gHeight = defaultHeight;
+  p5Canvas = createCanvas(20,3000);
   p5Canvas.parent(sketchHolder);
   document.getElementById("pre-sketch").style.display = "none";
   background(255);
+  // canvasPosCalibrate();
+  // divTopsCalibrate();
+  resizeTimeline(window.innerHeight);
   create();
   display();
-  for (var i = 0; i < projects.length; ++i){
-    origDivTops[i] = projects.item(i).getBoundingClientRect().top;
-  }
-  canvasPosCalibrate();
-  divTopsCalibrate();
-  resizeTimeline(window.innerHeight);
+  // for (var i = 0; i < projects.length; ++i){
+  //   origDivTops[i] = projects.item(i).getBoundingClientRect().top;
+  // }
 }
 
-function draw(){
-}
 
 function mouseWheel(event){
   counter++;
@@ -305,6 +308,7 @@ function mouseWheel(event){
 }
 
 function currentMousePos(){
+  console.log("currentMousePos");
   for (var i = 0; i < fieldsLength; i++){
     if (mouseY >= yPos[i] && mouseY < yPos[i+1]){
       mousePos = i+1;
@@ -327,46 +331,6 @@ function display(){
   }
 }
 
-function divTopsCalibrate(){
-  for (var i = 0; i < projects.length; ++i){
-    divTops[i] = projects.item(i).getBoundingClientRect().top;
-  }
-  for (var i = divTops.length-1; i >= 0 ; --i){
-    divTops[i] -= canvasPos;
-  }
-} 
-
-function canvasPosCalibrate(){
-  canvasPos = document.getElementById('sketch-holder').getBoundingClientRect().top;
-  console.log(canvasPos);
-}
-
-function resizeTimeline(nHeight){
-  resizeCanvas(gWidth, window.innerHeight);
-
-  for (let i = 0; i < divTops.length; ++i){
-    divTops[i] = (divTops[i]/gHeight) * nHeight;
-    origDivTops[i] = (origDivTops[i]/gHeight) * nHeight;
-    let top = canvasPos + Math.round(divTops[i])
-    projects.item(i).style.top = top.toString();
-  }
-
-  for (let i = 0; i < yPos.length; ++i){
-    yPos[i] = Math.round((yPos[i]/gHeight) * nHeight);
-    originalYPos[i] = Math.round((originalYPos[i]/gHeight) * nHeight);
-  }
-
-  for (var i = 0; i < fieldsLength; i++){
-    fields[i].y1 = yPos[i];
-    fields[i].y2 = yPos[i+1];
-    fields[i].fieldHeight = yPos[i+1] - yPos[i];
-  }
-
-  gHeight = nHeight;
-  console.log(canvasPos);
-  display();
-}
-
 class Field{
   constructor(y1, y2, hue, index){
     this.y1;
@@ -385,4 +349,21 @@ class Field{
     this.fieldHeight = this.y2 - this.y1;
   }
 }
-  
+
+
+function resizeTimeline(nHeight){
+	console.log("hello");
+  // resizeCanvas(gWidth, window.innerHeight);
+
+  for (let i = 0; i < yPos.length; ++i){
+    yPos[i] = Math.round((yPos[i]/gHeight) * nHeight);
+    originalYPos[i] = Math.round((originalYPos[i]/gHeight) * nHeight);
+  }
+
+  for (var i = 0; i < fieldsLength; i++){
+    fields[i].y1 = yPos[i];
+    fields[i].y2 = yPos[i+1];
+    fields[i].fieldHeight = yPos[i+1] - yPos[i];
+  }
+  display();
+}
