@@ -1,6 +1,6 @@
 	<html>
 	<head>
-		<meta name="viewport" content="width=device-width">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title> display </title>
 		<link rel="stylesheet" href="style2.css">
@@ -139,8 +139,7 @@
 			function openInformation(){
 				var information = document.getElementById("information");
 				var projects = document.getElementsByClassName("project");
-				console.log("hello");
-				information.style.display = "flex";
+				information.style.display = "";
 				document.getElementsByClassName("contact-button")[0].innerHTML = "x";
 				for (let i = 0; i < projects.length; ++i){
 					var pos = projects[i].style.top.slice(0,-2);
@@ -233,6 +232,10 @@
 				document.URL = url;
 				history.replaceState(history.state, "display", url);
 			}
+
+			function isMobile(){
+				return window,innerWidth < 768;
+			}
 		</script>
 	</head>
 	<body>
@@ -284,6 +287,9 @@
 				<img onclick="toTimelineView()" src="assets/icons/time-view.svg" style="cursor:pointer">
 			</div>
 			<div id="page">
+			<div class="menu">
+				<a onclick="toggleInformation()" class="contact-button">?</a>
+			</div>
 			<div class="content">
 				<div class="text">
 					<div class="project" style="top:100px;" id="project1" onclick="displayDetails(this)">
@@ -522,9 +528,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="menu">
-				<a onclick="toggleInformation()" class="contact-button">?</a>
-			</div>
 		</div>
 		</div>
 	</body>
@@ -545,6 +548,8 @@
 				document.getElementById("detail-description").innerHTML = description;
 
 				prevSelectedProject = elem.id.match(/[0-9]+/g)[0];
+
+				if (isMobile) document.getElementById("details").scrollIntoView({ behavior: 'smooth', block: 'start'});
 			} else {
 				document.getElementById("detail-description").innerHTML = "";
 				$('#media-container').empty();
@@ -590,9 +595,28 @@
 			informationDisplay = true;
 			openInformation();
 		} else {
-			console.log("false");
 			informationDisplay = false;
 			closeInformation();
+		}
+
+		var content = document.getElementsByClassName("content")[0];
+		var text = document.getElementsByClassName("text")[0];
+		var menu = document.getElementsByClassName("menu")[0];
+
+		function fixAndScroll(){
+			if (content.scrollTop > text.offsetTop + text.offsetHeight - menu.children[0].offsetHeight){
+				menu.style.top = text.getBoundingClientRect().bottom - menu.children[0].offsetHeight;
+			} else {
+				menu.style.top = "20px";
+			}
+		}
+
+		if (isMobile()){
+			console.log("is Mobile");
+			document.getElementsByClassName("content")[0].addEventListener('scroll', function(e){
+				console.log("scrolling");
+				fixAndScroll();
+			});
 		}
 	</script>
 	<script>
@@ -613,6 +637,5 @@
 				loadImage(imgs[i].childNodes[j].src);
 			}
 		}
-
 	</script>
 	</html>
